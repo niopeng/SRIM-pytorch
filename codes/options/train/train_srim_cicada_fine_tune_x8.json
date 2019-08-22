@@ -1,9 +1,11 @@
 {
-  "name": "RRDB_vanilla_x8_cicada" //  please remove "debug_" during training
+  "name": "RRDB_srim_x8_cicada_ft" //  please remove "debug_" during training
   , "use_tb_logger": true
   , "model":"srim"
   , "scale": 8
   , "gpu_ids": [1]
+  , "load_partial": false
+  , "load_partial_cat": false
 
   , "datasets": {
     "train": {
@@ -14,10 +16,11 @@
       , "subset_file": null
       , "use_shuffle": true
       , "n_workers": 0
-      , "batch_size": 8
+      , "batch_size": 640
       , "HR_size": 256
       , "use_flip": true
       , "use_rot": true
+      , "batch_size_per_day": 4
     }
     , "val": {
       "name": "n02256656_test"
@@ -29,11 +32,11 @@
 
   , "path": {
     "root": "/home/nio/local/hdd1/SRIM-pytorch"
-    , "pretrain_model_G": null
+  , "pretrain_model_G": "../experiments/pretrained_models/blank_72_150000_G.pth"
   }
 
   , "network_G": {
-    "which_model_G": "RRDB_net"
+    "which_model_G": "IMRRDB_net" // RRDB_net | sr_resnet
     , "norm_type": null
     , "mode": "CNA"
     , "nf": 64
@@ -42,11 +45,13 @@
     , "out_nc": 3
     , "gc": 128
     , "group": 1
-    , "last_act":"tanh"
+    , "in_code_nc" : 5
+    , "upsample_kernel_mode": "bilinear"
+    , "last_act": "tanh"
   }
 
   , "train": {
-    "lr_G": 2e-4
+    "lr_G": 1.5e-4
     , "weight_decay_G": 0
     , "beta1_G": 0.9
     , "lr_D": 1e-4
@@ -63,8 +68,24 @@
     , "gan_type": "vanilla"
     , "gan_weight": 5e-3
 
-    , "manual_seed": 0
-    , "niter": 1.5e5
+    , "dci_num_comp_indices": 2
+    , "dci_num_simp_indices": 10
+    , "dci_num_levels": 2
+    , "dci_construction_field_of_view": 5
+    , "dci_query_field_of_view": 5
+    , "dci_prop_to_visit": 1.0
+    , "dci_prop_to_retrieve": 0.1
+    , "num_code_per_img": 100
+    , "code_nc": 5
+    , "sample_perturbation_magnitude": 1e-1
+    , "zero_code": false
+    , "rand_code": false
+
+    , "num_month": 1000
+    , "num_day": 2e5
+
+    , "manual_seed": 1
+    , "niter": 2e8
     , "val_freq": 5e3
   }
 
