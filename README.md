@@ -1,5 +1,15 @@
 # SRIM-pytorch
 
+Setup:
+
+1. go to "/code/dci" and then "make"
+
+2. go to "/code" and then do:
+
+    i. "ln -s ./dci/src/dci.py ./"
+
+    ii. "ln -s ./dci/build/_dci.so ./"
+
 Training Procedure:
 
 1. Train a vanilla network without code input, the upsampling layer uses nearest neighbour interpolation, ouput layer uses recentering tanh activation.

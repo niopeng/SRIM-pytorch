@@ -13,7 +13,7 @@ from utils import util
 from data import create_dataloader, create_dataset
 from models import create_model
 from utils.logger import Logger, PrintLogger
-from dci_util import get_code_for_data, get_code
+from dci_util import get_code
 import numpy as np
 
 
@@ -74,7 +74,6 @@ def main():
     for epoch in range(num_month):
         for i, train_data in enumerate(train_loader):
             # get the code
-            # cur_month_code = get_code_for_data(model, train_data, opt)
             cur_month_code = get_code(model, train_data, opt)
             for j in range(num_day):
                 current_step += 1
