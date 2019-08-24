@@ -32,7 +32,7 @@
 
   , "path": {
     "root": "/home/nio/local/hdd1/SRIM-pytorch"
-  , "pretrain_model_G": "../experiments/pretrained_models/blank_72_150000_G.pth"
+  , "pretrain_model_G": "../experiments/pretrained_models/code_81_480000_G.pth"
   }
 
   , "network_G": {
@@ -51,7 +51,7 @@
   }
 
   , "train": {
-    "lr_G": 1.5e-4
+    "lr_G": 1e-4
     , "weight_decay_G": 0
     , "beta1_G": 0.9
     , "lr_D": 1e-4
