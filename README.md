@@ -16,7 +16,7 @@ Code organization copied from [[BasicSR]](https://github.com/xinntao/BasicSR)
 
 
 ## Dataset Preparation
-We use datasets in LDMB format for faster IO speed. Please refer to [create_lmdb.py](codes/scripts/create_lmdb.py) for more details.
+We use datasets in LDMB format for faster IO speed. Please refer to [create_hr_lr_lmdb.py](codes/scripts/create_hr_lr_lmdb.py) for more details.
 
 ## Training and Testing
 To train model with RRDB, please refer to [train_srim.sh](codes/train_srim.sh)
