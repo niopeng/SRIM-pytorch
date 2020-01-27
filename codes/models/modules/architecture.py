@@ -110,23 +110,14 @@ class CaffeTwoStackNet(nn.Module):
         # ==========
         # Caffe SRIM
         # ==========
-        if use_deconv:
-            self.upconv_0 = nn.ConvTranspose2d(in_nc, in_nc, 4, stride=2, padding=1, groups=3, bias=False)
-            for k, v in self.upconv_0.named_parameters():
-                v.requires_grad = False
-        else:
-            self.upconv_0 = nn.Upsample(scale_factor=2, mode="bilinear")
+        self.upconv_0 = nn.Upsample(scale_factor=2, mode="bilinear")
         if use_wn:
             self.c_conv_0 = B.WN_SkipBlock_9C(in_nc, in_code_nc, kernel_size=kernel_size, gc=gc, act_type=act_type)
         else:
             self.c_conv_0 = B.SkipBlock_9C(in_nc, in_code_nc, kernel_size=kernel_size, gc=gc, norm_type=norm_type,
                                        act_type=act_type)
-        if use_deconv:
-            self.upconv_1 = nn.ConvTranspose2d(in_nc, in_nc, 4, stride=2, padding=1, groups=3, bias=False)
-            for k, v in self.upconv_1.named_parameters():
-                v.requires_grad = False
-        else:
-            self.upconv_1 = nn.Upsample(scale_factor=2, mode="bilinear")
+
+        self.upconv_1 = nn.Upsample(scale_factor=2, mode="bilinear")
         if use_wn:
             self.c_conv_1 = B.WN_SkipBlock_9C(in_nc, in_code_nc, kernel_size=kernel_size, gc=gc, act_type=act_type)
         else:
@@ -153,35 +144,21 @@ class CaffeThreeStackNet(nn.Module):
         # ==========
         # Caffe SRIM
         # ==========
-        if use_deconv:
-            self.upconv_0 = nn.ConvTranspose2d(in_nc, in_nc, 4, stride=2, padding=1, groups=3, bias=False)
-            for k, v in self.upconv_0.named_parameters():
-                v.requires_grad = False
-        else:
-            self.upconv_0 = nn.Upsample(scale_factor=2, mode="bilinear")
+        self.upconv_0 = nn.Upsample(scale_factor=2, mode="bilinear")
         if use_wn:
             self.c_conv_0 = B.WN_SkipBlock_9C(in_nc, in_code_nc, kernel_size=kernel_size, gc=gc, act_type=act_type)
         else:
             self.c_conv_0 = B.SkipBlock_9C(in_nc, in_code_nc, kernel_size=kernel_size, gc=gc, norm_type=norm_type,
                                        act_type=act_type)
-        if use_deconv:
-            self.upconv_1 = nn.ConvTranspose2d(in_nc, in_nc, 4, stride=2, padding=1, groups=3, bias=False)
-            for k, v in self.upconv_1.named_parameters():
-                v.requires_grad = False
-        else:
-            self.upconv_1 = nn.Upsample(scale_factor=2, mode="bilinear")
+
+        self.upconv_1 = nn.Upsample(scale_factor=2, mode="bilinear")
         if use_wn:
             self.c_conv_1 = B.WN_SkipBlock_9C(in_nc, in_code_nc, kernel_size=kernel_size, gc=gc, act_type=act_type)
         else:
             self.c_conv_1 = B.SkipBlock_9C(in_nc, in_code_nc, kernel_size=kernel_size, gc=gc, norm_type=norm_type,
                                        act_type=act_type)
 
-        if use_deconv:
-            self.upconv_2 = nn.ConvTranspose2d(in_nc, in_nc, 4, stride=2, padding=1, groups=3, bias=False)
-            for k, v in self.upconv_1.named_parameters():
-                v.requires_grad = False
-        else:
-            self.upconv_2 = nn.Upsample(scale_factor=2, mode="bilinear")
+        self.upconv_2 = nn.Upsample(scale_factor=2, mode="bilinear")
         if use_wn:
             self.c_conv_2 = B.WN_SkipBlock_9C(in_nc, in_code_nc, kernel_size=kernel_size, gc=gc, act_type=act_type)
         else:
