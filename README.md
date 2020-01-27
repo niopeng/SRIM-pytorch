@@ -18,7 +18,7 @@ Code organization copied from [[BasicSR]](https://github.com/xinntao/BasicSR)
 ## Dataset Preparation
 We use datasets in LDMB format for faster IO speed. Please refer to [create_hr_lr_lmdb.py](codes/scripts/create_hr_lr_lmdb.py) for more details.
 
-## Training and Testing
+## Training
 To train model with RRDB, please refer to [train_srim.sh](codes/train_srim.sh)
 To train legacy Caffe model, please refer to [train_caffe.sh](codes/train_caffe.sh)
 
