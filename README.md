@@ -1,20 +1,25 @@
 # SRIM-pytorch
 
-Setup:
+Super-Resolution Implicit Model (SRIM) is a multi-modal image super-resoluition model. This repository contains two implementations of the model:
 
-1. go to "/code/dci" and then "make"
+- One deep neural network featuring Residual-in-Residual Dense Block (RRDB)
+- One legacy CNN based network derived from Caffe implementation
 
-2. go to "/code" and then do:
+Code organization copied from [[BasicSR]](https://github.com/xinntao/BasicSR)
 
-    i. "ln -s ./dci/src/dci.py ./"
+## Dependencies and Installation
 
-    ii. "ln -s ./dci/build/_dci.so ./"
+- Python 3 (Recommend to use [Anaconda](https://www.anaconda.com/download))
+- [PyTorch >= 1.1](https://pytorch.org)
+- NVIDIA GPU + [CUDA](https://developer.nvidia.com/cuda-downloads)
+- Python packages: `pip install -r requirements.txt`
 
-Training Procedure:
 
-1. Train a vanilla network without code input, the upsampling layer uses nearest neighbour interpolation, ouput layer uses recentering tanh activation.
+## Dataset Preparation
+We use datasets in LDMB format for faster IO speed. Please refer to [create_lmdb.py](codes/scripts/create_lmdb.py) for more details.
 
-2. Fine tune the network with random code input (when loading the weights, set "load_partial_cat" to "True"), the upsampling layer uses nearest neighbour interpolation, output layer uses sigmoid activation.
+## Training and Testing
+To train model with RRDB, please refer to [train_srim.sh](codes/train_srim.sh)
+To train legacy Caffe model, please refer to [train_caffe.sh](codes/train_caffe.sh)
 
-3. Further fine tune the network (set "load_partial_cat" to "False"), use bilinear interpolation for the upsampling layer and recentering tanh activation for the output layer.
 
