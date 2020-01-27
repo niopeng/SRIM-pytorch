@@ -115,8 +115,6 @@ def main():
             batch_size_per_day = int(opt['datasets']['train']['batch_size_per_day'])
             num_month = int(opt['train']['num_month'])
             num_day = int(opt['train']['num_day'])
-
-            use_dci = false if 'use_dci' not in opt['train'] else opt['train']['use_dci']
         elif phase == 'val':
             val_dataset_opt = dataset_opt
             val_set = create_dataset(dataset_opt)
