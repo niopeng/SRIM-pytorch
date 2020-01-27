@@ -13,7 +13,7 @@ from utils import util
 from data import create_dataloader, create_dataset
 from models import create_model
 from utils.logger import Logger, PrintLogger
-from dci_util import get_code
+from dci_util import get_code, get_code_for_data
 import numpy as np
 
 
@@ -54,6 +54,7 @@ def main():
             batch_size_per_day = int(opt['datasets']['train']['batch_size_per_day'])
             num_month = int(opt['train']['num_month'])
             num_day = int(opt['train']['num_day'])
+            use_dci = false if 'use_dci' not in opt['train'] else opt['train']['use_dci']
         elif phase == 'val':
             val_dataset_opt = dataset_opt
             val_set = create_dataset(dataset_opt)
@@ -74,7 +75,10 @@ def main():
     for epoch in range(num_month):
         for i, train_data in enumerate(train_loader):
             # get the code
-            cur_month_code = get_code(model, train_data, opt)
+            if use_dci:
+                cur_month_code = get_code_for_data(model, train_data, opt)
+            else:
+                cur_month_code = get_code(model, train_data, opt)
             for j in range(num_day):
                 current_step += 1
                 if current_step > total_iters:

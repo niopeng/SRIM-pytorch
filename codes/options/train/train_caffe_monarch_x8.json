@@ -34,7 +34,7 @@
 
   , "path": {
       "root": "/home/nio/SRIM"
-    , "pretrain_model_G": "../experiments/pretrained_models/caffe_monarch_x4_G.pth"
+    , "pretrain_model_G": "../experiments/Caffe_monarch_x4/models/500000_G.pth"
 
   }
 
