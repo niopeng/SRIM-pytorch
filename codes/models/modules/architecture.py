@@ -104,6 +104,108 @@ class IMRRDBNet(nn.Module):
         return result
 
 
+class CaffeTwoStackNet(nn.Module):
+    def __init__(self, in_nc, in_code_nc, gc, norm_type=None, act_type='leakyrelu', kernel_size=5, use_wn=False):
+        super(CaffeTwoStackNet, self).__init__()
+        # ==========
+        # Caffe SRIM
+        # ==========
+        if use_deconv:
+            self.upconv_0 = nn.ConvTranspose2d(in_nc, in_nc, 4, stride=2, padding=1, groups=3, bias=False)
+            for k, v in self.upconv_0.named_parameters():
+                v.requires_grad = False
+        else:
+            self.upconv_0 = nn.Upsample(scale_factor=2, mode="bilinear")
+        if use_wn:
+            self.c_conv_0 = B.WN_SkipBlock_9C(in_nc, in_code_nc, kernel_size=kernel_size, gc=gc, act_type=act_type)
+        else:
+            self.c_conv_0 = B.SkipBlock_9C(in_nc, in_code_nc, kernel_size=kernel_size, gc=gc, norm_type=norm_type,
+                                       act_type=act_type)
+        if use_deconv:
+            self.upconv_1 = nn.ConvTranspose2d(in_nc, in_nc, 4, stride=2, padding=1, groups=3, bias=False)
+            for k, v in self.upconv_1.named_parameters():
+                v.requires_grad = False
+        else:
+            self.upconv_1 = nn.Upsample(scale_factor=2, mode="bilinear")
+        if use_wn:
+            self.c_conv_1 = B.WN_SkipBlock_9C(in_nc, in_code_nc, kernel_size=kernel_size, gc=gc, act_type=act_type)
+        else:
+            self.c_conv_1 = B.SkipBlock_9C(in_nc, in_code_nc, kernel_size=kernel_size, gc=gc, norm_type=norm_type,
+                                       act_type=act_type)
+
+    def forward(self, img, code, code_1, code_2=None):
+        # ==========
+        # Caffe SRIM
+        # ==========
+
+        upsample_lr = self.upconv_0(img)
+        output_0 = self.c_conv_0(upsample_lr, code)
+        upsample_lr = self.upconv_1(upsample_lr)
+        output_1 = self.upconv_1(output_0)
+        output_1 = self.c_conv_1(output_1, code_1, upsample_lr)
+
+        return [output_0, output_1]
+
+
+class CaffeThreeStackNet(nn.Module):
+    def __init__(self, in_nc, in_code_nc, gc, norm_type=None, act_type='leakyrelu', kernel_size=5, use_wn=False):
+        super(CaffeThreeStackNet, self).__init__()
+        # ==========
+        # Caffe SRIM
+        # ==========
+        if use_deconv:
+            self.upconv_0 = nn.ConvTranspose2d(in_nc, in_nc, 4, stride=2, padding=1, groups=3, bias=False)
+            for k, v in self.upconv_0.named_parameters():
+                v.requires_grad = False
+        else:
+            self.upconv_0 = nn.Upsample(scale_factor=2, mode="bilinear")
+        if use_wn:
+            self.c_conv_0 = B.WN_SkipBlock_9C(in_nc, in_code_nc, kernel_size=kernel_size, gc=gc, act_type=act_type)
+        else:
+            self.c_conv_0 = B.SkipBlock_9C(in_nc, in_code_nc, kernel_size=kernel_size, gc=gc, norm_type=norm_type,
+                                       act_type=act_type)
+        if use_deconv:
+            self.upconv_1 = nn.ConvTranspose2d(in_nc, in_nc, 4, stride=2, padding=1, groups=3, bias=False)
+            for k, v in self.upconv_1.named_parameters():
+                v.requires_grad = False
+        else:
+            self.upconv_1 = nn.Upsample(scale_factor=2, mode="bilinear")
+        if use_wn:
+            self.c_conv_1 = B.WN_SkipBlock_9C(in_nc, in_code_nc, kernel_size=kernel_size, gc=gc, act_type=act_type)
+        else:
+            self.c_conv_1 = B.SkipBlock_9C(in_nc, in_code_nc, kernel_size=kernel_size, gc=gc, norm_type=norm_type,
+                                       act_type=act_type)
+
+        if use_deconv:
+            self.upconv_2 = nn.ConvTranspose2d(in_nc, in_nc, 4, stride=2, padding=1, groups=3, bias=False)
+            for k, v in self.upconv_1.named_parameters():
+                v.requires_grad = False
+        else:
+            self.upconv_2 = nn.Upsample(scale_factor=2, mode="bilinear")
+        if use_wn:
+            self.c_conv_2 = B.WN_SkipBlock_9C(in_nc, in_code_nc, kernel_size=kernel_size, gc=gc, act_type=act_type)
+        else:
+            self.c_conv_2 = B.SkipBlock_9C(in_nc, in_code_nc, kernel_size=kernel_size, gc=gc, norm_type=norm_type,
+                                       act_type=act_type)
+
+    def forward(self, img, code, code_1, code_2):
+        # ==========
+        # Caffe SRIM
+        # ==========
+
+        upsample_lr = self.upconv_0(img)
+        output_0 = self.c_conv_0(upsample_lr, code)
+        upsample_lr = self.upconv_1(upsample_lr)
+        output_1 = self.upconv_1(output_0)
+        output_1 = self.c_conv_1(output_1, code_1, upsample_lr)
+        upsample_lr = self.upconv_2(upsample_lr)
+        output_2 = self.upconv_2(output_1)
+        output_2 = self.c_conv_2(output_2, code_2, upsample_lr)
+
+        return [output_0, output_1, output_2]
+
+
+
 ####################
 # Discriminator
 ####################
@@ -307,7 +409,8 @@ class VGGFeatureExtractor(nn.Module):
                  feature_layer=34,
                  use_bn=False,
                  use_input_norm=True,
-                 device=torch.device('cpu')):
+                 device=torch.device('cpu'),
+                 feat_layers=[]):
         super(VGGFeatureExtractor, self).__init__()
         if use_bn:
             model = torchvision.models.vgg19_bn(pretrained=True)
@@ -321,15 +424,28 @@ class VGGFeatureExtractor(nn.Module):
             # [0.229*2, 0.224*2, 0.225*2] if input in range [-1,1]
             self.register_buffer('mean', mean)
             self.register_buffer('std', std)
-        self.features = nn.Sequential(*list(model.features.children())[:(feature_layer + 1)])
-        # No need to BP to variable
-        for k, v in self.features.named_parameters():
-            v.requires_grad = False
+        if len(feat_layers):
+            self.features = [nn.Sequential(*list(model.features.children())[:(f_layer + 1)]) for f_layer in feat_layers]
+            for feat in self.features:
+                # No need to BP to variable
+                for k, v in feat.named_parameters():
+                    v.requires_grad = False
+        else:
+            self.features = nn.Sequential(*list(model.features.children())[:(feature_layer + 1)])
+            # No need to BP to variable
+            for k, v in self.features.named_parameters():
+                v.requires_grad = False
 
     def forward(self, x):
         if self.use_input_norm:
             x = (x - self.mean) / self.std
-        output = self.features(x)
+        if type(self.features) is list:
+            output = []
+            for feat in self.features:
+                feat.cuda()
+                output.append(feat(x))
+        else:
+            output = self.features(x)
         return output
 
 

@@ -1,0 +1,97 @@
+{
+  "name": "Caffe_monarch_x4"
+  , "use_tb_logger": true
+  , "model":"srim_mc"
+  , "scale": 4
+  , "gpu_ids": [5]
+  , "load_partial": false
+  , "load_partial_cat": false
+
+  , "datasets": {
+    "train": {
+      "name": "n02279972"
+      , "mode": "LRHR_mid"
+      , "dataroot_HR": "/home/nio/data/n02279972_down_2.lmdb" // 128 x 128
+      , "dataroot_LR": "/home/nio/data/n02279972_down_8.lmdb" // 32 x 32
+      , "dataroot_D1": "/home/nio/data/n02279972_down_4.lmdb" // 64 x 64
+      , "dataroot_D2": "/home/nio/data/n02279972_down_2.lmdb" // 128 x 128
+      , "subset_file": null
+      , "use_shuffle": true
+      , "n_workers": 8
+      , "batch_size": 640
+      , "HR_size": 128
+      , "use_flip": true
+      , "use_rot": true
+      , "batch_size_per_day": 16
+    }
+    , "val": {
+      "name": "n02279972_test"
+      , "mode": "LRHR"
+      , "dataroot_HR": "/home/nio/data/n02279972_test_down_2.lmdb" // 128 x 128
+      , "dataroot_LR": "/home/nio/data/n02279972_test_down_8.lmdb" // 32 x 32
+    }
+  }
+
+  , "path": {
+      "root": "/home/nio/SRIM"
+  , "pretrain_model_G": null
+
+  }
+
+  , "network_G": {
+    "which_model_G": "CaffeTwoStack_net"
+    , "in_nc": 3
+    , "in_code_nc" : 5
+    , "group": 1
+    , "gc": 64
+    , "kernel_size": 5
+    , "norm_type": "batch"
+    , "use_wn": true
+    , "init_type": "normal"
+    , "init_scale": 0.0003
+  }
+
+  , "train": {
+    "lr_G": 1e-4
+    , "weight_decay_G": 0
+    , "beta1_G": 0.9
+    , "lr_D": 1e-4
+    , "weight_decay_D": 0
+    , "beta1_D": 0.9
+    , "lr_scheme": "MultiStepLR"
+    , "lr_steps": [80000, 160000, 240000, 320000]
+    , "lr_gamma": 0.5
+
+    , "pixel_criterion": "l1"
+    , "pixel_weight": 1e-3
+    , "feature_criterion": "l1"
+    , "feature_weight": 1
+    , "gan_type": "vanilla"
+    , "gan_weight": 5e-3
+
+    , "dci_num_comp_indices": 2
+    , "dci_num_simp_indices": 10
+    , "dci_num_levels": 2
+    , "dci_construction_field_of_view": 5
+    , "dci_query_field_of_view": 5
+    , "dci_prop_to_visit": 1.0
+    , "dci_prop_to_retrieve": 0.1
+    , "num_code_per_img": 100
+    , "code_nc": 5
+    , "sample_perturbation_magnitude": 1e-1
+    , "zero_code": false
+    , "rand_code": false
+    , "show_message": false
+    , "num_month": 25
+    , "num_day": 2e4
+
+    , "manual_seed": 0
+    , "niter": 5e5
+    , "val_freq": 5e3
+  }
+
+  , "logger": {
+    "print_freq": 200
+    , "save_checkpoint_freq": 5e3
+  }
+}

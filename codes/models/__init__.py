@@ -5,6 +5,8 @@ def create_model(opt):
         from .SRRaGAN_model import SRRaGANModel as M
     elif model == 'srim':
         from .SRIM_model import SRIMModel as M
+    elif model == 'srim_mc':
+        from .SRIM_mult_code_model import SRIMMultCodeModel as M
     else:
         raise NotImplementedError('Model [{:s}] not recognized.'.format(model))
     m = M(opt)

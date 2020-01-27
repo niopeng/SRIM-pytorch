@@ -91,7 +91,7 @@ def define_G(opt):
             act_type='leakyrelu', mode=opt_net['mode'], upsample_mode='upconv',
             upsample_kernel_mode=upsample_kernel_mode, no_conv=no_conv, last_act=opt_net['last_act'])
 
-    elif which_model == 'IMRRDB_net':  # RRDB
+    elif which_model == 'IMRRDB_net':
         upsample_kernel_mode = "nearest" if "upsample_kernel_mode" not in opt_net else opt_net["upsample_kernel_mode"]
         no_conv = False if "no_conv" not in opt_net else opt_net["no_conv"]
         netG = arch.IMRRDBNet(in_nc=opt_net['in_nc'], in_code_nc=opt_net['in_code_nc'], out_nc=opt_net['out_nc'], nf=opt_net['nf'],
@@ -100,12 +100,27 @@ def define_G(opt):
             upsample_kernel_mode=upsample_kernel_mode, no_conv=no_conv, use_sigmoid=opt_net["use_sigmoid"],
             last_act=opt_net['last_act'])
 
+    elif which_model == 'CaffeTwoStack_net':
+        kernel_size = 5 if 'kernel_size' not in opt_net else opt_net['kernel_size']
+        norm_type = 'batch' if 'c_norm_type' not in opt_net else opt_net['c_norm_type']
+        use_wn = False if 'use_wn' not in opt_net else opt_net['use_wn']
+        netG = arch.CaffeTwoStackNet(in_nc=opt_net['in_nc'], in_code_nc=opt_net['in_code_nc'], gc=opt_net['gc'],
+                                     norm_type=norm_type, kernel_size=kernel_size, use_wn=use_wn)
+
+    elif which_model == 'CaffeThreeStack_net':
+        kernel_size = 5 if 'kernel_size' not in opt_net else opt_net['kernel_size']
+        norm_type = 'batch' if 'c_norm_type' not in opt_net else opt_net['c_norm_type']
+        use_wn = False if 'use_wn' not in opt_net else opt_net['use_wn']
+        netG = arch.CaffeThreeStackNet(in_nc=opt_net['in_nc'], in_code_nc=opt_net['in_code_nc'], gc=opt_net['gc'],
+                                     norm_type=norm_type, kernel_size=kernel_size, use_wn=use_wn)
+
     else:
         raise NotImplementedError('Generator model [{:s}] not recognized'.format(which_model))
 
     if opt['is_train']:
         scale = 0.1 if 'init_scale' not in opt_net else opt_net['init_scale']
-        init_weights(netG, init_type='kaiming', scale=scale)
+        init_type = 'kaiming' if 'init_type' not in opt_net else opt_net['init_type']
+        init_weights(netG, init_type=init_type, scale=scale)
     if gpu_ids:
         assert torch.cuda.is_available()
         netG = nn.DataParallel(netG)

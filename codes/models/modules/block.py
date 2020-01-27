@@ -1,6 +1,7 @@
 from collections import OrderedDict
 import torch
 import torch.nn as nn
+from torch.nn.utils import weight_norm
 
 ####################
 # Basic blocks
@@ -210,6 +211,93 @@ class ResidualDenseBlock_5C(nn.Module):
         x4 = self.conv4(torch.cat((x, x1, x2, x3), 1))
         x5 = self.conv5(torch.cat((x, x1, x2, x3, x4), 1))
         return x5.mul(0.2) + x
+
+
+class SkipBlock_9C(nn.Module):
+
+    def __init__(self, in_nc, code_nc, kernel_size=3, gc=32, stride=1, bias=True, pad_type='zero',
+            norm_type='batch', act_type='leakyrelu', mode='CNA'):
+        super(SkipBlock_9C, self).__init__()
+        # gc: growth channel, i.e. intermediate channels
+        self.conv1 = conv_block(in_nc+code_nc, gc, kernel_size, stride, bias=bias, pad_type=pad_type,
+                                norm_type=norm_type, act_type=act_type, mode=mode)
+        self.conv2 = conv_block(in_nc + gc, gc, kernel_size, stride, bias=bias, pad_type=pad_type,
+                                norm_type=norm_type, act_type=act_type, mode=mode)
+        self.conv3 = conv_block(in_nc + gc, gc, kernel_size, stride, bias=bias, pad_type=pad_type,
+                                norm_type=norm_type, act_type=act_type, mode=mode)
+        self.conv4 = conv_block(in_nc + gc, gc, kernel_size, stride, bias=bias, pad_type=pad_type,
+                                norm_type=norm_type, act_type=act_type, mode=mode)
+        self.conv5 = conv_block(in_nc + gc, gc, kernel_size, stride, bias=bias, pad_type=pad_type,
+                                norm_type=norm_type, act_type=act_type, mode=mode)
+        self.conv6 = conv_block(in_nc + gc, gc, kernel_size, stride, bias=bias, pad_type=pad_type,
+                                norm_type=norm_type, act_type=act_type, mode=mode)
+        self.conv7 = conv_block(in_nc + gc, gc, kernel_size, stride, bias=bias, pad_type=pad_type,
+                                norm_type=norm_type, act_type=act_type, mode=mode)
+        self.conv8 = conv_block(in_nc + gc, gc, kernel_size, stride, bias=bias, pad_type=pad_type,
+                                norm_type=norm_type, act_type=act_type, mode=mode)
+
+        self.conv9 = conv_block(in_nc + gc, in_nc, kernel_size, stride, bias=bias, pad_type=pad_type, \
+                                norm_type=None, act_type='sigmoid', mode=mode)
+
+    def forward(self, x, code, skip_input=None):
+        si = skip_input if skip_input is not None else x
+        x1 = self.conv1(torch.cat((code, x), 1))
+        x2 = self.conv2(torch.cat((x1, si), 1))
+        x3 = self.conv3(torch.cat((x2, si), 1))
+        x4 = self.conv4(torch.cat((x3, si), 1))
+        x5 = self.conv5(torch.cat((x4, si), 1))
+        x6 = self.conv6(torch.cat((x5, si), 1))
+        x7 = self.conv7(torch.cat((x6, si), 1))
+        x8 = self.conv8(torch.cat((x7, si), 1))
+        x9 = self.conv9(torch.cat((x8, si), 1))
+        return x9
+
+
+class WN_SkipBlock_9C(nn.Module):
+
+    def __init__(self, in_nc, code_nc, kernel_size=3, gc=32, stride=1, bias=True, act_type='leakyrelu'):
+        super(WN_SkipBlock_9C, self).__init__()
+        # gc: growth channel, i.e. intermediate channels
+        self.conv1 = sequential(weight_norm(nn.Conv2d(in_nc+code_nc, gc, kernel_size=kernel_size, stride=stride,
+                                                      padding=get_valid_padding(kernel_size, 1), bias=bias),
+                                            name='weight'), act(act_type) if act_type else None)
+        self.conv2 = sequential(weight_norm(nn.Conv2d(in_nc + gc, gc, kernel_size=kernel_size, stride=stride,
+                                                      padding=get_valid_padding(kernel_size, 1), bias=bias),
+                                            name='weight'), act(act_type) if act_type else None)
+        self.conv3 = sequential(weight_norm(nn.Conv2d(in_nc + gc, gc, kernel_size=kernel_size, stride=stride,
+                                                      padding=get_valid_padding(kernel_size, 1), bias=bias),
+                                            name='weight'), act(act_type) if act_type else None)
+        self.conv4 = sequential(weight_norm(nn.Conv2d(in_nc + gc, gc, kernel_size=kernel_size, stride=stride,
+                                                      padding=get_valid_padding(kernel_size, 1), bias=bias),
+                                            name='weight'), act(act_type) if act_type else None)
+        self.conv5 = sequential(weight_norm(nn.Conv2d(in_nc + gc, gc, kernel_size=kernel_size, stride=stride,
+                                                      padding=get_valid_padding(kernel_size, 1), bias=bias),
+                                            name='weight'), act(act_type) if act_type else None)
+        self.conv6 = sequential(weight_norm(nn.Conv2d(in_nc + gc, gc, kernel_size=kernel_size, stride=stride,
+                                                      padding=get_valid_padding(kernel_size, 1), bias=bias),
+                                            name='weight'), act(act_type) if act_type else None)
+        self.conv7 = sequential(weight_norm(nn.Conv2d(in_nc + gc, gc, kernel_size=kernel_size, stride=stride,
+                                                      padding=get_valid_padding(kernel_size, 1), bias=bias),
+                                            name='weight'), act(act_type) if act_type else None)
+        self.conv8 = sequential(weight_norm(nn.Conv2d(in_nc + gc, gc, kernel_size=kernel_size, stride=stride,
+                                                      padding=get_valid_padding(kernel_size, 1), bias=bias),
+                                            name='weight'), act(act_type) if act_type else None)
+        self.conv9 = sequential(weight_norm(nn.Conv2d(in_nc + gc, in_nc, kernel_size=kernel_size, stride=stride,
+                                                      padding=get_valid_padding(kernel_size, 1), bias=bias),
+                                            name='weight'), act('sigmoid'))
+
+    def forward(self, x, code, skip_input=None):
+        si = skip_input if skip_input is not None else x
+        x1 = self.conv1(torch.cat((code, x), 1))
+        x2 = self.conv2(torch.cat((x1, si), 1))
+        x3 = self.conv3(torch.cat((x2, si), 1))
+        x4 = self.conv4(torch.cat((x3, si), 1))
+        x5 = self.conv5(torch.cat((x4, si), 1))
+        x6 = self.conv6(torch.cat((x5, si), 1))
+        x7 = self.conv7(torch.cat((x6, si), 1))
+        x8 = self.conv8(torch.cat((x7, si), 1))
+        x9 = self.conv9(torch.cat((x8, si), 1))
+        return x9
 
 
 class ScaleLayer(nn.Module):
