@@ -159,7 +159,7 @@ def define_D(opt):
     return netD
 
 
-def define_F(opt, use_bn=False):
+def define_F(opt, use_bn=False, feat_layers=[]):
     gpu_ids = opt['gpu_ids']
     device = torch.device('cuda' if gpu_ids else 'cpu')
     # pytorch pretrained VGG19-54, before ReLU.
@@ -168,7 +168,7 @@ def define_F(opt, use_bn=False):
     else:
         feature_layer = 34
     netF = arch.VGGFeatureExtractor(feature_layer=feature_layer, use_bn=use_bn, \
-        use_input_norm=True, device=device)
+        use_input_norm=True, device=device, feat_layers=feat_layers)
     # netF = arch.ResNet101FeatureExtractor(use_input_norm=True, device=device)
     if gpu_ids:
         netF = nn.DataParallel(netF)
