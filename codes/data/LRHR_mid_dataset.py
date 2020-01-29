@@ -65,7 +65,7 @@ class LRHRMidDataset(data.Dataset):
             D2_path = self.paths_D2[index]
             img_LR = util.read_img(self.LR_env, LR_path)
             img_D1 = util.read_img(self.D1_env, D1_path)
-            img_D2 = util.read_img(self.D1_env, D1_path)
+            img_D2 = util.read_img(self.D2_env, D2_path)
         else:  # down-sampling on-the-fly
             # randomly scale during training
             if self.opt['phase'] == 'train':
