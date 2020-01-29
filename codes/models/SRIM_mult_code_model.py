@@ -95,30 +95,6 @@ class SRIMMultCodeModel(BaseModel):
             self.var_D1 = data['D1'].to(self.device) if 'D1' in data else None
             self.var_D2 = data['D2'].to(self.device) if 'D2' in data else None
 
-    def get_loss(self):
-        result = torch.empty(self.var_L.shape[0])
-        for i in range(self.var_L.shape[0]):
-            code = self.code[i: i + 1] if self.code is not None else None
-            code_1 = self.code_1[i: i + 1] if self.code_1 is not None else None
-            code_2 = self.code_2[i: i + 1] if self.code_2 is not None else None
-            gen_img = self.netG(self.var_L[i: i + 1], code, code_1, code_2)[-1]
-            l_g_total = 0
-            if self.cri_pix:  # pixel loss
-                l_g_pix = self.l_pix_w * self.cri_pix(gen_img, self.var_H[i: i + 1])
-                l_g_total += l_g_pix
-            if self.cri_fea:  # feature loss
-                real_fea = self.netF(self.var_H[i: i + 1]).detach()
-                fake_fea = self.netF(gen_img)
-                if type(real_fea) is list:
-                    l_g_fea = 0
-                    for i in range(len(real_fea)):
-                        l_g_fea += self.cri_fea(fake_fea[i], real_fea[i]) * self.feat_weights[i]
-                else:
-                    l_g_fea = self.cri_fea(fake_fea, real_fea)
-                l_g_total += self.l_fea_w * l_g_fea
-            result[i] = l_g_total.detach().cpu()
-        return result
-
     def optimize_parameters(self, step):
 
         self.optimizer_G.zero_grad()
@@ -163,7 +139,7 @@ class SRIMMultCodeModel(BaseModel):
             outputs = self.netG(self.var_L, self.code, self.code_1, self.code_2)
             self.fake_H = outputs[-1]
             fake_D1 = outputs[0] if len(outputs) > 1 else None
-            fake_D2 = outputs[0] if len(outputs) > 2 else None
+            fake_D2 = outputs[1] if len(outputs) > 2 else None
         gen_feat = self.netF(self.fake_H)
         real_feat = self.netF(self.var_H)
         out_dict['gen_feat'] = gen_feat[-1].data.double().cpu() if type(
